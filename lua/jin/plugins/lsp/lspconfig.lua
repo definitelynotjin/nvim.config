@@ -92,6 +92,8 @@ return {
 
 			-- Setup LSP servers
 			local servers = {
+				vtsls = {},
+				vue_ls_ = {},
 				tailwindcss = {},
 				emmet_ls = {
 					filetypes = {
