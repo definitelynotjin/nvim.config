@@ -15,6 +15,35 @@ return {
     local trouble = require("trouble")
     local trouble_telescope = require("trouble.sources.telescope")
 
+    -- 🔧 Hotfix deprecated LSP APIs
+    do
+      -- Patch jump_to_location → prefer show_document
+      if vim.lsp.util and vim.lsp.util.jump_to_location then
+        local old_jump = vim.lsp.util.jump_to_location
+        vim.lsp.util.jump_to_location = function(location, ...)
+          if vim.lsp.util.show_document then
+            return vim.lsp.util.show_document(location, ...)
+          end
+          return old_jump(location, ...)
+        end
+      end
+
+      -- Patch Telescope’s LSP client check (dot → colon)
+      local ok, lsp_handlers = pcall(require, "telescope.builtin._internal")
+      if ok and lsp_handlers.lsp_request then
+        local orig = lsp_handlers.lsp_request
+        lsp_handlers.lsp_request = function(bufnr, method, ...)
+          local clients = vim.lsp.get_clients({ bufnr = bufnr })
+          for _, client in ipairs(clients) do
+            if client.supports_method and client:supports_method(method) then
+              return orig(bufnr, method, ...)
+            end
+          end
+        end
+      end
+    end
+    -- 🔧 End hotfix
+
     -- Custom action
     local custom_actions = transform_mod({
       open_trouble_qflist = function(prompt_bufnr)
@@ -53,23 +82,23 @@ return {
 
     -- Auto-open Telescope on startup if no files provided
     vim.api.nvim_create_autocmd("VimEnter", {
-  callback = function()
-    if vim.fn.argc() == 0 then
-      local ok, builtin = pcall(require, "telescope.builtin")
-      if ok then
-        -- close the empty buffer first
-        if vim.bo.buftype == "" and vim.fn.bufname() == "" then
-          vim.cmd("bd!")  -- delete the no-name buffer
+      callback = function()
+        if vim.fn.argc() == 0 then
+          local ok, builtin = pcall(require, "telescope.builtin")
+          if ok then
+            -- close the empty buffer first
+            if vim.bo.buftype == "" and vim.fn.bufname() == "" then
+              vim.cmd("bd!") -- delete the no-name buffer
+            end
+            builtin.find_files({ prompt_title = "~ Start ~" })
+          else
+            local alpha = require("alpha")
+            local dashboard = require("alpha.themes.dashboard")
+            alpha.setup(dashboard.opts)
+          end
         end
-        builtin.find_files({ prompt_title = "~ Start ~" })
-      else
-        local alpha = require("alpha")
-        local dashboard = require("alpha.themes.dashboard")
-        alpha.setup(dashboard.opts)
-      end
-    end
-  end,
-})
+      end,
+    })
   end,
 }
 

@@ -8,7 +8,6 @@ opt.shiftwidth = 2
 opt.expandtab = true
 opt.autoindent = true
 
-
 opt.ignorecase = true
 opt.smartcase = true
 
@@ -21,3 +20,15 @@ opt.clipboard:append("unnamedplus")
 
 opt.splitright = true
 opt.splitbelow = true
+opt.winblend = 0
+opt.pumblend = 0
+opt.laststatus = 3      -- single global statusline
+opt.showmode = false    -- hide -- INSERT -- text
+opt.statusline = ""     -- clear default
+opt.cursorline = true
+opt.cursorlineopt = "number"
+opt.wrap = true
+opt.linebreak = true
+opt.statuscolumn = "%s%l  "
+opt.cmdheight = 0
+opt.hidden = true
