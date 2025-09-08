@@ -66,7 +66,7 @@ return {
           "filename",
           file_status = true,
           newfile_status = false,
-          path = 3,
+          path = 2,
           }
         },
         lualine_x = {

@@ -28,6 +28,12 @@ for _, m in ipairs(modes) do
   keymap.set(m, "k", "j", { noremap = true, silent = true })
 end
 
+-- Notifier History
+keymap.set("n", "<leader>mm", function()
+  Snacks.picker.notifications()
+end, { desc = "notifications History"}
+
+)
 -- Navigate between tabs
 keymap.set("n", "<A-k>", ":tabnext<CR>", { noremap = true, silent = true })
 keymap.set("n", "<A-j>", ":tabprevious<CR>", { noremap = true, silent = true })
