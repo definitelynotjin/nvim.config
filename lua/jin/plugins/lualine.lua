@@ -17,32 +17,32 @@ return {
 
 		local my_lualine_theme = {
 			normal = {
-				a = { bg = colors.blue, fg = colors.bg, gui = "bold" },
+				a = { bg = "NONE", fg = colors.blue, gui = "bold" },
 				b = { bg = "NONE", fg = colors.fg }, -- fully transparent
 				c = { bg = "NONE", fg = colors.fg }, -- fully transparent
 			},
 			insert = {
-				a = { bg = colors.green, fg = colors.bg, gui = "bold" },
+				a = { bg = "NONE", fg = colors.green, gui = "bold" },
 				b = { bg = "NONE", fg = colors.fg },
 				c = { bg = "NONE", fg = colors.fg },
 			},
 			visual = {
-				a = { bg = colors.violet, fg = colors.bg, gui = "bold" },
+				a = { bg = "NONE", fg = colors.violet, gui = "bold" },
 				b = { bg = "NONE", fg = colors.fg },
 				c = { bg = "NONE", fg = colors.fg },
 			},
 			command = {
-				a = { bg = colors.yellow, fg = colors.bg, gui = "bold" },
+				a = { bg = "NONE", fg = colors.yellow, gui = "bold" },
 				b = { bg = "NONE", fg = colors.fg },
 				c = { bg = "NONE", fg = colors.fg },
 			},
 			replace = {
-				a = { bg = colors.red, fg = colors.bg, gui = "bold" },
+				a = { bg = "NONE", fg = colors.red, gui = "bold" },
 				b = { bg = "NONE", fg = colors.fg },
 				c = { bg = "NONE", fg = colors.fg },
 			},
 			inactive = {
-				a = { bg = colors.inactive_bg, fg = colors.bg, gui = "bold" },
+				a = { bg = "NONE", fg = colors.inactive_bg, gui = "bold" },
 				b = { bg = "NONE", fg = colors.fg },
 				c = { bg = "NONE", fg = colors.fg },
 			},

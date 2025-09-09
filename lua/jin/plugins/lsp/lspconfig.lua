@@ -1,7 +1,7 @@
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
-		opts = { ensure_installed = { "vue", "css" } },
+		opts = { ensure_installed = { "css" } },
 	},
 	{
 		"neovim/nvim-lspconfig",
@@ -92,8 +92,6 @@ return {
 
 			-- Setup LSP servers
 			local servers = {
-				vtsls = {},
-				vue_ls_ = {},
 				tailwindcss = {},
 				emmet_ls = {
 					filetypes = {
@@ -115,39 +113,34 @@ return {
 					},
 				},
 			}
-
-			-- Setup Volar (Vue) + vtsls 2.2.12
-			local mason_registry = require("mason-registry")
-			local vue_ls_path = vim.fn.stdpath("data") .. "/mason/packages/vue-language-server"
-			-- lspconfig.vtsls.setup({
-			--   filetypes = { "vue" },
-			--   init_options = {
-			--     typescript = {
-			--       tsdk = vim.fn.getcwd() .. "/node_modules/typescript/lib",
-			--     },
-			--     plugins = {
-			--       {
-			--         name = "@vue/typescript-plugin",
-			--         location = vue_ls_path .. "/node_modules/@vue/language-server",
-			--         languages = { "vue" },
-			--       },
-			--     },
-			--   },
-			--   capabilities = capabilities,
-			-- })
-
-			lspconfig.volar.setup({
-				filetypes = { "vue" },
-				init_options = {
-					typescript = {
-						tsdk = vim.fn.getcwd() .. "/node_modules/typescript/lib", -- point to local TS
-					},
-					vue = { hybridMode = false }, -- disables hybridMode
+			-- TypeScript LS with Vue plugin
+			lspconfig.ts_ls.setup({
+				filetypes = {
+					"typescript",
+					"javascript",
+					"javascriptreact",
+					"typescriptreact",
 				},
 				capabilities = capabilities,
 			})
 
-			-- ESLint setup
+			-- Volar (handles template + CSS inside .vue files)
+			lspconfig.volar.setup({
+				filetypes = { "vue" },
+				init_options = {
+					vue = {
+						hybridMode = true,
+						languageFeatures = {
+							style = true,
+						},
+					},
+					typescript = {
+						tsdk = vim.fn.getcwd() .. "/node_modules/typescript/lib",
+					},
+				},
+				capabilities = capabilities,
+			})
+
 			lspconfig.eslint.setup({
 				filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
 				settings = {},
