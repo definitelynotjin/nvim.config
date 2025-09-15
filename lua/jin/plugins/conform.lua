@@ -1,44 +1,39 @@
 return {
 	"stevearc/conform.nvim",
-	event = { "BufWritePre" },
+	event = { "VeryLazy" },
 	cmd = { "ConformInfo" },
 	keys = {
 		{
-			-- Customize or remove this keymap to your liking
 			"<leader>FF",
 			function()
 				require("conform").format({ async = true })
 			end,
-			mode = "",
+			mode = "n",
 			desc = "Format buffer",
 		},
 	},
-	-- This will provide type hinting with LuaLS
-	---@module "conform"
-	---@type conform.setupOpts
 	opts = {
-		-- Define your formatters
 		formatters_by_ft = {
 			lua = { "stylua" },
 			python = { "isort", "black" },
-			javascript = { "prettierd", "prettier", stop_after_first = true },
-			typescript = { "prettierd", "prettier", stop_after_first = true },
+			javascript = { { "prettierd", "prettier" } },
+			typescript = { { "prettierd", "prettier" } },
+			vue = { "prettierd", "prettier" },
 		},
-		-- Set default options
 		default_format_opts = {
-			lsp_format = "fallback",
+			lsp_format = "never",
 		},
-		-- Set up format-on-save
-		format_on_save = { timeout_ms = 500 },
-		-- Customize formatters
+		format_on_save = {
+			pattern = "*",
+			async = true,
+		},
 		formatters = {
 			shfmt = {
-				append_args = { "-i", "2" },
+				append_args = { "-i", "3" },
 			},
 		},
 	},
 	init = function()
-		-- If you want the formatexpr, here is the place to set it
 		vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
 	end,
 }

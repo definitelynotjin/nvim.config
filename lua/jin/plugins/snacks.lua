@@ -7,12 +7,10 @@ return {
 		picker = {
 			enabled = true,
 		},
-		rename = { enabled = true },
 		notifier = {
 			enabled = true,
 			timeout = 3000,
 		},
-		input = { enabled = true },
 		scroll = { enabled = true },
 		styles = {
 			notification = {

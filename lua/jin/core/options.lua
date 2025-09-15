@@ -1,4 +1,4 @@
-vim.cmd("let g:netrw_liststyle = 3")
+vim.cmd("let g:netrw_liststyle = 2")
 
 local opt = vim.opt
 
@@ -7,24 +7,22 @@ opt.tabstop = 2
 opt.shiftwidth = 2
 opt.expandtab = true
 opt.autoindent = true
-
+opt.relativenumber = false
 opt.ignorecase = true
 opt.smartcase = true
-
 opt.termguicolors = true
-opt.background = "dark"
-
+opt.showbreak = string.rep(" ",3)
+opt.breakindent = true
+-- opt.background = "dark"
 opt.backspace = "indent,eol,start"
-
 opt.clipboard:append("unnamedplus")
-
 opt.splitright = true
 opt.splitbelow = true
 opt.winblend = 0
 opt.pumblend = 0
-opt.laststatus = 3      -- single global statusline
-opt.showmode = false    -- hide -- INSERT -- text
-opt.statusline = ""     -- clear default
+opt.laststatus = 3 -- single global statusline
+opt.showmode = false -- hide -- INSERT -- text
+opt.statusline = "" -- clear default
 opt.cursorline = true
 opt.cursorlineopt = "number"
 opt.wrap = true

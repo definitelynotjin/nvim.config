@@ -6,76 +6,34 @@ return {
 	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
-			"hrsh7th/cmp-nvim-lsp",
-			{ "antosha417/nvim-lsp-file-operations", config = true },
+			{ "saghen/blink.cmp" },
 			{ "folke/neodev.nvim", opts = {} },
 		},
 		config = function()
 			local lspconfig = require("lspconfig")
-			local cmp_nvim_lsp = require("cmp_nvim_lsp")
 			local keymap = vim.keymap
 
-			-- LSP attach keymaps
-			vim.api.nvim_create_autocmd("LspAttach", {
-				group = vim.api.nvim_create_augroup("UserLspConfig", {}),
-				callback = function(ev)
-					local opts = { buffer = ev.buf, silent = true }
+			-- Define on_attach once
+			local on_attach = function(client, bufnr)
+				local opts = { buffer = bufnr, silent = true }
 
-					keymap.set("n", "gR", function()
-						vim.lsp.buf.references({ position_encoding = "utf-16" })
-					end, { desc = "Show LSP references", buffer = ev.buf })
-
-					keymap.set("n", "gD", function()
-						vim.lsp.buf.declaration({ position_encoding = "utf-16" })
-					end, { desc = "Go to declaration", buffer = ev.buf })
-
-					keymap.set("n", "gd", function()
-						vim.lsp.buf.definition({ position_encoding = "utf-16" })
-					end, { desc = "Go to definition", buffer = ev.buf })
-
-					-- For other LSP calls that don't need position_encoding, keep them as-is
-					keymap.set(
-						"n",
-						"gi",
-						"<cmd>Telescope lsp_implementations<CR>",
-						{ desc = "Go to implementation", buffer = ev.buf }
-					)
-					keymap.set(
-						"n",
-						"gt",
-						"<cmd>Telescope lsp_type_definitions<CR>",
-						{ desc = "Go to type definition", buffer = ev.buf }
-					)
-					keymap.set(
-						{ "n", "v" },
-						"<leader>ca",
-						vim.lsp.buf.code_action,
-						{ desc = "Code actions", buffer = ev.buf }
-					)
-					keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename symbol", buffer = ev.buf })
-					keymap.set(
-						"n",
-						"<leader>D",
-						"<cmd>Telescope diagnostics bufnr=0<CR>",
-						{ desc = "Buffer diagnostics", buffer = ev.buf }
-					)
-					keymap.set(
-						"n",
-						"<leader>d",
-						vim.diagnostic.open_float,
-						{ desc = "Line diagnostics", buffer = ev.buf }
-					)
-					keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic", buffer = ev.buf })
-					keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic", buffer = ev.buf })
-					keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Hover documentation", buffer = ev.buf })
-					keymap.set("n", "<leader>rs", ":LspRestart<CR>", { desc = "Restart LSP", buffer = ev.buf })
-				end,
-			})
+				keymap.set("n", "gR", vim.lsp.buf.references, opts)
+				keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+				keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+				keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<CR>", opts)
+				keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", opts)
+				keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
+				keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+				keymap.set("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=1<CR>", opts)
+				keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts)
+				keymap.set("n", "K", vim.lsp.buf.hover, opts)
+				keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts)
+			end
 
 			-- Enable autocompletion capabilities
-			local capabilities = cmp_nvim_lsp.default_capabilities()
+			local capabilities = require("blink.cmp").get_lsp_capabilities(vim.lsp.protocol.make_client_capabilities())
 
-			-- Configure diagnostics signs
+			-- Configure diagnostics
 			vim.diagnostic.config({
 				virtual_text = true,
 				signs = {
@@ -90,74 +48,44 @@ return {
 				update_in_insert = false,
 			})
 
-			-- Setup LSP servers
+			-- Setup servers
 			local servers = {
 				tailwindcss = {},
-				emmet_ls = {
-					filetypes = {
-						"html",
-						"typescriptreact",
-						"javascriptreact",
-						"css",
-						"sass",
-						"scss",
-						"less",
-					},
-				},
-				lua_ls = {
-					settings = {
-						Lua = {
-							diagnostics = { globals = { "vim" } },
-							completion = { callSnippet = "Replace" },
-						},
-					},
-				},
+				emmet_ls = { filetypes = { "javascript", "typescript", "html", "vue", "css" } },
+				lua_ls = { settings = { Lua = { diagnostics = { globals = { "vim" } } } } },
 			}
-			-- TypeScript LS with Vue plugin
-			lspconfig.ts_ls.setup({
-				filetypes = {
-					"typescript",
-					"javascript",
-					"javascriptreact",
-					"typescriptreact",
-				},
-				capabilities = capabilities,
-			})
 
-			-- Volar (handles template + CSS inside .vue files)
-			lspconfig.volar.setup({
-				filetypes = { "vue" },
-				init_options = {
-					vue = {
-						hybridMode = true,
-						languageFeatures = {
-							style = true,
-						},
-					},
-					typescript = {
-						tsdk = vim.fn.getcwd() .. "/node_modules/typescript/lib",
-					},
-				},
-				capabilities = capabilities,
-			})
-
-			lspconfig.eslint.setup({
-				filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
-				settings = {},
-				root_dir = lspconfig.util.root_pattern(
-					".eslintrc.js",
-					".eslintrc.json",
-					".eslintrc.yaml",
-					"package.json"
-				),
-				capabilities = capabilities,
-			})
-
-			-- Loop through other servers
+			-- Loop through servers
 			for server, opts in pairs(servers) do
+				opts.on_attach = on_attach
 				opts.capabilities = capabilities
 				lspconfig[server].setup(opts)
 			end
+
+			-- TypeScript with Vue plugin
+			local global_ts_plugin =
+				vim.fn.expand("~/.nvm/versions/node/v21.19.4/lib/node_modules/@vue/typescript-plugin")
+			lspconfig.ts_ls.setup({
+				on_attach = on_attach,
+				capabilities = capabilities,
+				init_options = {
+					plugins = {
+						{ name = "@vue/typescript-plugin", location = global_ts_plugin, language = { "vue" } },
+					},
+				},
+				filetypes = { "typescript", "javascript", "typescriptreact", "javascriptreact" },
+			})
+
+			-- Volar
+			lspconfig.volar.setup({
+				on_attach = on_attach,
+				capabilities = capabilities,
+				filetypes = { "vue", "typescript", "javascript", "typescriptreact", "javascriptreact", "json" },
+				init_options = {
+					vue = { hybridMode = true, languageFeatures = { style = true, template = true, script = true } },
+					typescript = { tsdk = vim.fn.getcwd() .. "/node_modules/typescript/lib" },
+				},
+			})
 		end,
 	},
 }
