@@ -1,7 +1,7 @@
 return {
 	{
 		"nvim-treesitter/nvim-treesitter",
-		opts = { ensure_installed = { "css", "html", "javascript", "typescript", "vue" } },
+		opts = { ensure_installed = { "css" } },
 	},
 	{
 		"neovim/nvim-lspconfig",
@@ -13,9 +13,10 @@ return {
 			local lspconfig = require("lspconfig")
 			local keymap = vim.keymap
 
-			-- shared on_attach
-			local on_attach = function(_, bufnr)
+			-- Define on_attach once
+			local on_attach = function(client, bufnr)
 				local opts = { buffer = bufnr, silent = true }
+
 				keymap.set("n", "gR", vim.lsp.buf.references, opts)
 				keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
 				keymap.set("n", "gd", vim.lsp.buf.definition, opts)
@@ -29,10 +30,10 @@ return {
 				keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts)
 			end
 
-			-- capabilities
+			-- Enable autocompletion capabilities
 			local capabilities = require("blink.cmp").get_lsp_capabilities(vim.lsp.protocol.make_client_capabilities())
 
-			-- diagnostics look
+			-- Configure diagnostics
 			vim.diagnostic.config({
 				virtual_text = true,
 				signs = {
@@ -47,75 +48,42 @@ return {
 				update_in_insert = false,
 			})
 
-			-- main servers
-			local servers = {}
+			-- Setup servers
+			local servers = {
+				tailwindcss = {},
+				emmet_ls = { filetypes = { "javascript", "typescript", "html", "vue", "css" } },
+				lua_ls = { settings = { Lua = { diagnostics = { globals = { "vim" } } } } },
+			}
 
+			-- Loop through servers
 			for server, opts in pairs(servers) do
 				opts.on_attach = on_attach
 				opts.capabilities = capabilities
 				lspconfig[server].setup(opts)
 			end
 
-			--     local mason_registry = require("mason-registry")
-			-- local vue_language_server =
-			-- mason_registry.get_package("vue-language-server"):get_install_path() .. "/node_modules/@vue/language-server"
-			local vue_language_server = vim.fn.stdpath("data")
-				.. "/mason/packages/vue-language-server/node_modules/@vue/language-server"
+			-- TypeScript with Vue plugin
+			local global_ts_plugin =
+				vim.fn.expand("~/.nvm/versions/node/v21.19.4/lib/node_modules/@vue/typescript-plugin")
 			lspconfig.ts_ls.setup({
 				on_attach = on_attach,
 				capabilities = capabilities,
 				init_options = {
 					plugins = {
-						{
-							name = "@vue/typescript-plugin",
-							location = vue_language_server,
-							languages = { "vue" },
-						},
+						{ name = "@vue/typescript-plugin", location = global_ts_plugin, language = { "vue" } },
 					},
 				},
-				filetypes = { "typescriptreact", "javascript", "typescriptreact", "javascriptreact" },
-			})
-			lspconfig.emmet_ls.setup({
-				on_attach = on_attach,
-				capabilities = capabilities,
-				filetypes = {
-					"html",
-					"css",
-					"javascriptreact",
-					"typescriptreact",
-					"vue",
-				},
+				filetypes = { "typescript", "javascript", "typescriptreact", "javascriptreact" },
 			})
 
-			-- lspconfig.eslint.setup({
-			--         on_attach = function(client, bufnr)
-			--           client.server_capabilities.documentFormattingProvider = false
-			--           client.server_capabilities.documentRangeFormattingProvider = false
-			--           on_attach(client, bufnr)
-			--         end,
-			--   capabilities = capabilities,
-			--   root_dir = require("lspconfig.util").root_pattern(
-			--     ".eslintrc",
-			--     ".eslintrc.js",
-			--     ".eslintrc.json",
-			--     "eslint.config.js",
-			--     "package.json",
-			--     ".git"
-			--   ),
-			--   single_file_support = false,
-			-- })
-
-			-- Volar (handles Vue + TS, no need for ts_ls)
+			-- Volar
 			lspconfig.volar.setup({
 				on_attach = on_attach,
 				capabilities = capabilities,
-				filetypes = { "vue" },
+				filetypes = { "vue", "typescript", "javascript", "typescriptreact", "javascriptreact", "json" },
 				init_options = {
-					typescript = { tsdk = vim.fn.expand("node_modules/typescript/lib") },
-					vue = {
-						hybridMode = true,
-						languageFeatures = { style = true, template = true, script = true },
-					},
+					vue = { hybridMode = true, languageFeatures = { style = true, template = true, script = true } },
+					typescript = { tsdk = vim.fn.getcwd() .. "/node_modules/typescript/lib" },
 				},
 			})
 		end,

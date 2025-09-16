@@ -9,6 +9,8 @@ return {
 		-- configure treesitter
 		treesitter.setup({
 			auto_install = true,
+			sync_install = false,
+			ignore_install = {},
 			highlight = {
 				enable = true,
 			},
@@ -26,7 +28,7 @@ return {
 				"markdown",
 				"markdown_inline",
 				"bash",
-				"lua",
+				-- "lua",
 				"vim",
 				"dockerfile",
 				"gitignore",
@@ -34,15 +36,6 @@ return {
 				"vimdoc",
 				"vue",
 				"c",
-			},
-			incremental_selection = {
-				enable = true,
-				keymaps = {
-					init_selection = "<C-space>",
-					node_incremental = "<C-space>",
-					scope_incremental = false,
-					node_decremental = "<bs>",
-				},
 			},
 		})
 

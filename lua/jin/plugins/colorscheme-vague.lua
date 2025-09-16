@@ -1,10 +1,9 @@
 return {
-	"navarasu/onedark.nvim",
+	"vague2k/vague.nvim",
 	priority = 1000,
-	enabled = true,
+	enabled = false,
 	config = function()
-		require("onedark").setup({
-			style = "darker",
+		require("vague").setup({
 			transparent = true,
 			term_colors = true,
 			lualine = { transparent = true },
@@ -15,9 +14,12 @@ return {
 				background = true,
 			},
 		})
-		require("onedark").load()
 
-		local c = require("onedark.colors")
+		-- activate vague
+		vim.cmd.colorscheme("vague")
+
+		-- highlight overrides (yours)
+		local c = require("vague.colors")
 
 		-- Standard floating windows
 		vim.api.nvim_set_hl(0, "NormalFloat", { bg = c.bg })
