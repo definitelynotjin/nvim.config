@@ -12,6 +12,14 @@ return {
 		config = function()
 			local lspconfig = require("lspconfig")
 			local keymap = vim.keymap
+			local util = require("lspconfig.util")
+			local function get_tsdk(root_dir)
+				local ts = util.path.join(root_dir, "node_modules", "typescript", "lib")
+				if vim.fn.isdirectory(ts) == 1 then
+					return ts
+				end
+				return nil
+			end
 
 			-- shared on_attach
 			local on_attach = function(_, bufnr)
@@ -21,6 +29,7 @@ return {
 				keymap.set("n", "gd", vim.lsp.buf.definition, opts)
 				keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<CR>", opts)
 				keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", opts)
+
 				keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
 				keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
 				keymap.set("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=1<CR>", opts)
@@ -49,18 +58,21 @@ return {
 
 			-- main servers
 			local servers = {}
-
-			for server, opts in pairs(servers) do
-				opts.on_attach = on_attach
-				opts.capabilities = capabilities
-				lspconfig[server].setup(opts)
+			for _, lsp in ipairs(servers) do
+				lspconfig[lsp].setup({
+					on_attach = on_attach,
+					capabilities = capabilities,
+				})
 			end
 
-			--     local mason_registry = require("mason-registry")
-			-- local vue_language_server =
-			-- mason_registry.get_package("vue-language-server"):get_install_path() .. "/node_modules/@vue/language-server"
-			local vue_language_server = vim.fn.stdpath("data")
-				.. "/mason/packages/vue-language-server/node_modules/@vue/language-server"
+			lspconfig.clangd.setup({
+				on_attach = on_attach,
+				capabilities = capabilities,
+			})
+
+			local mason_packages = vim.fn.stdpath("data") .. "/mason/packages"
+			local volar_path = mason_packages .. "/vue-language-server/node_modules/@vue/language-server"
+
 			lspconfig.ts_ls.setup({
 				on_attach = on_attach,
 				capabilities = capabilities,
@@ -68,56 +80,95 @@ return {
 					plugins = {
 						{
 							name = "@vue/typescript-plugin",
-							location = vue_language_server,
+							location = "/usr/local/lib/node_modules/@vue/language-server",
 							languages = { "vue" },
 						},
 					},
 				},
-				filetypes = { "typescriptreact", "javascript", "typescriptreact", "javascriptreact" },
-			})
-			lspconfig.emmet_ls.setup({
-				on_attach = on_attach,
-				capabilities = capabilities,
-				filetypes = {
-					"html",
-					"css",
-					"javascriptreact",
-					"typescriptreact",
-					"vue",
+				settings = {
+					typescript = {
+						inlayHints = {
+							includeInlayParameterNameHints = "all",
+							includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+							includeInlayFunctionParameterTypeHints = true,
+							includeInlayVariableTypeHints = true,
+							includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+							includeInlayPropertyDeclarationTypeHints = true,
+							includeInlayFunctionLikeReturnTypeHints = true,
+							includeInlayEnumMemberValueHints = true,
+						},
+					},
 				},
+				filetypes = { "typescriptreact", "javascript", "typescriptreact", "javascriptreact", "vue" },
 			})
 
-			-- lspconfig.eslint.setup({
-			--         on_attach = function(client, bufnr)
-			--           client.server_capabilities.documentFormattingProvider = false
-			--           client.server_capabilities.documentRangeFormattingProvider = false
-			--           on_attach(client, bufnr)
-			--         end,
-			--   capabilities = capabilities,
-			--   root_dir = require("lspconfig.util").root_pattern(
-			--     ".eslintrc",
-			--     ".eslintrc.js",
-			--     ".eslintrc.json",
-			--     "eslint.config.js",
-			--     "package.json",
-			--     ".git"
-			--   ),
-			--   single_file_support = false,
-			-- })
+			lspconfig.eslint.setup({
+				cmd = { "eslint_d", "--stdin" },
+				on_attach = function(client, bufnr)
+					client.server_capabilities.documentFormattingProvider = false
+					client.server_capabilities.documentRangeFormattingProvider = false
+					on_attach(client, bufnr)
+				end,
+				capabilities = capabilities,
+				root_dir = util.root_pattern(
+					".eslintrc",
+					".eslintrc.js",
+					".eslintrc.json",
+					"eslint.config.js",
+					"package.json",
+					".git"
+				),
+				filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact", "vue" },
+				single_file_support = false,
+			})
 
 			-- Volar (handles Vue + TS, no need for ts_ls)
+			--
+			--
+			--
+			local tsdk_path = get_tsdk(vim.loop.cwd())
 			lspconfig.volar.setup({
-				on_attach = on_attach,
-				capabilities = capabilities,
-				filetypes = { "vue" },
 				init_options = {
-					typescript = { tsdk = vim.fn.expand("node_modules/typescript/lib") },
 					vue = {
-						hybridMode = true,
-						languageFeatures = { style = true, template = true, script = true },
+						hybridMode = false,
+					},
+				},
+				settings = {
+					typescript = {
+						inlayHints = {
+							enumMemberValues = {
+								enabled = true,
+							},
+							functionLikeReturnTypes = {
+								enabled = true,
+							},
+							propertyDeclarationTypes = {
+								enabled = true,
+							},
+							parameterTypes = {
+								enabled = true,
+								suppressWhenArgumentMatchesName = true,
+							},
+							variableTypes = {
+								enabled = true,
+							},
+						},
 					},
 				},
 			})
+
+			-- lspconfig.volar.setup({
+			-- 	on_attach = on_attach,
+			-- 	capabilities = capabilities,
+			-- 	filetypes = { "vue" },
+			-- 	init_options = {
+			-- 		typescript = tsdk_path and { tsdk = tsdk_path } or nil,
+			-- 		vue = {
+			-- 			hybridMode = true,
+			-- 			languageFeatures = { style = true, template = true, script = true },
+			-- 		},
+			-- 	},
+			-- })
 		end,
 	},
 }

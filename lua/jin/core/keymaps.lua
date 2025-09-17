@@ -33,7 +33,7 @@ keymap.set("n", "<leader>mm", function()
 end, { desc = "notifications History" })
 
 -- Save file
-keymap.set("n", "<leader>cw", ":w<CR>", { noremap = true, silent = true })
+keymap.set("n", "<leader>ww", ":w<CR>", { noremap = true, silent = true })
 
 -- Open nvim config
 keymap.set("n", "<leader>co", function()

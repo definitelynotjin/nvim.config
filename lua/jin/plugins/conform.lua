@@ -17,7 +17,7 @@ return {
 			lua = { "stylua" },
 			javascript = { "eslint_d", "prettierd", "prettier" },
 			typescript = { "eslint_d", "prettierd", "prettier" },
-			vue = { "eslint_d", "prettierd", "prettier" },
+			vue = { "prettierd", "prettier" },
 			json = { "eslint_d", "prettierd", "prettier" },
 		},
 		default_format_opts = {

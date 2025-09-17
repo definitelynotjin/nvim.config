@@ -32,9 +32,9 @@ return {
 				"cssls",
 				"tailwindcss",
 				-- "lua_ls",
-				"emmet_ls",
+				-- "emmet_ls",
 				-- "pyright",
-				-- "eslint",
+				"eslint_d",
 			},
 		})
 
