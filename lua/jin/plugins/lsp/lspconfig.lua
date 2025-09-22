@@ -33,7 +33,7 @@ return {
 				keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
 				keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
 				keymap.set("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=1<CR>", opts)
-				keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts)
+				-- keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts)
 				keymap.set("n", "K", vim.lsp.buf.hover, opts)
 				keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts)
 			end
@@ -122,10 +122,18 @@ return {
 				single_file_support = false,
 			})
 
-			-- Volar (handles Vue + TS, no need for ts_ls)
-			--
-			--
-			--
+			--basedpyright lspcofnig
+			lspconfig.basedpyright.setup({
+				capabilities = capabilities,
+				settings = {
+					basedpyright = {
+						analysis = {
+							typeCheckingMode = "basic",
+						},
+					},
+				},
+			})
+
 			local tsdk_path = get_tsdk(vim.loop.cwd())
 			lspconfig.volar.setup({
 				init_options = {

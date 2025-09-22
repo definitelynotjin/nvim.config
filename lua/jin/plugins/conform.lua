@@ -19,6 +19,7 @@ return {
 			typescript = { "eslint_d", "prettierd", "prettier" },
 			vue = { "prettierd", "prettier" },
 			json = { "eslint_d", "prettierd", "prettier" },
+			python = { "ruff" },
 		},
 		default_format_opts = {
 			lsp_format = "never",
