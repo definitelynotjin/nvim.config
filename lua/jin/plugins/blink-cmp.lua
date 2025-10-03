@@ -37,7 +37,7 @@ return {
 			-- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
 			-- Adjusts spacing to ensure icons are aligned
 			use_nvim_cmp_as_default = false,
-			nerd_font_variant = "mono",
+			nerd_font_variant = "normal",
 		},
 
 		-- (Default) Only show the documentation popup when manually triggered

@@ -1,10 +1,12 @@
 return {
+	-- "olimorris/onedarkpro.nvim",
 	"navarasu/onedark.nvim",
 	priority = 1000,
 	enabled = true,
 	config = function()
 		require("onedark").setup({
-			style = "darker",
+			-- require("onedarkpro").setup({
+			style = "cool",
 			transparent = true,
 			term_colors = true,
 			lualine = { transparent = true },

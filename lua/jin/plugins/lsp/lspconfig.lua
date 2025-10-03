@@ -88,7 +88,7 @@ return {
 				settings = {
 					typescript = {
 						inlayHints = {
-							includeInlayParameterNameHints = "all",
+							includeInlayParameterNameHints = "none",
 							includeInlayParameterNameHintsWhenArgumentMatchesName = true,
 							includeInlayFunctionParameterTypeHints = true,
 							includeInlayVariableTypeHints = true,

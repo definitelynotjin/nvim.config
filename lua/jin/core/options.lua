@@ -11,13 +11,14 @@ opt.relativenumber = false
 opt.ignorecase = true
 opt.smartcase = true
 opt.termguicolors = true
-opt.showbreak = string.rep(" ",3)
+opt.showbreak = string.rep(" ", 3)
 opt.breakindent = true
 -- opt.background = "dark"
 opt.backspace = "indent,eol,start"
 opt.clipboard:append("unnamedplus")
 opt.splitright = true
 opt.splitbelow = true
+opt.timeoutlen = 200
 opt.winblend = 0
 opt.pumblend = 0
 opt.laststatus = 3 -- single global statusline

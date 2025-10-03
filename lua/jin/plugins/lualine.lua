@@ -56,7 +56,7 @@ return {
 				component_separators = "",
 			},
 			sections = {
-				lualine_a = { "mode" },
+				lualine_a = { "mode", "branch" },
 				lualine_b = {},
 				lualine_c = {
 					{
@@ -73,7 +73,7 @@ return {
 						color = { fg = "#ff9e64" },
 					},
 				},
-				lualine_y = { "diagnostics" },
+				lualine_y = { "diff", "diagnostics" },
 				lualine_z = { "location" },
 			},
 		})
